@@ -15,6 +15,7 @@ public class Empleado extends Persona{
     public Empleado(String identificacion, String nombre, String telefono, Puesto puesto) {
         super(identificacion, nombre, telefono);
         this.puesto = puesto;
+        this.salario = puesto.getSalario();
     }
     
     public Puesto getPuesto() {
