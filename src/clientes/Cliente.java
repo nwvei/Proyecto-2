@@ -52,8 +52,8 @@ public class Cliente extends Persona{
     
     public Cliente(String identificacion, String nombreCompleto, LocalDate fechaNacimiento, String telefono, String correo) {
         super(identificacion, nombreCompleto, telefono);
-        this.fecha_nac = fechaNacimiento;
-        this.correo = correo;
+        setFechaNacimiento(fechaNacimiento);
+        setCorreoElectronico(correo);
     }
     
     public int calcularEdad() {
