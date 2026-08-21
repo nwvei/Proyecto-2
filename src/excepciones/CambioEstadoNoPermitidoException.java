@@ -6,10 +6,11 @@ package excepciones;
 
 /**
  *
- * @author Aaron
+ * @author Adriel
  */
-public class FechaFinAnteriorException extends StoreBoxException {
-    public FechaFinAnteriorException (String mensaje) {
+ public class CambioEstadoNoPermitidoException extends StoreBoxException {
+ 
+    public CambioEstadoNoPermitidoException(String mensaje) {
         super(mensaje);
     }
 }
