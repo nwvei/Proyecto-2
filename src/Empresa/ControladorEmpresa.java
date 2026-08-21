@@ -6,7 +6,6 @@ package Empresa;
 import Contrato.Contrato;
 import Contrato.EstadoContrato;
 import contratos.Listacontratos;
-import contratos.Listacontratos.ListaContratos;
 import excepciones.CambioEstadoNoPermitidoException;
 import excepciones.StoreBoxException;
 import java.time.LocalDate;
