@@ -8,7 +8,7 @@ package excepciones;
  *
  * @author UTN
  */
-public class cliente_con_contratosExc extends Excepcion{
+public class cliente_con_contratosExc extends StoreBoxException{
     public cliente_con_contratosExc(String message) {
         super(message);
     }

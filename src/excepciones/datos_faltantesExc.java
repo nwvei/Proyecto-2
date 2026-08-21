@@ -8,7 +8,7 @@ package excepciones;
  *
  * @author UTN
  */
-public class datos_faltantesExc extends Excepcion{
+public class datos_faltantesExc extends StoreBoxException{
     public datos_faltantesExc(String message) {
         super(message);
     }

@@ -8,7 +8,7 @@ package excepciones;
  *
  * @author UTN
  */
-public class ID_duplicadosExc extends Excepcion {
+public class ID_duplicadosExc extends StoreBoxException {
     public ID_duplicadosExc(String Mensaje) {
         super(Mensaje);
     }
