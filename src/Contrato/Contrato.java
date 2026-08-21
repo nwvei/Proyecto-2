@@ -1,3 +1,4 @@
+package Contrato;
 
 import Contrato.EstadoContrato;
 import Exceptions.FechaFinAnteriorException;
