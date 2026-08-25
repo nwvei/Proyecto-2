@@ -43,7 +43,8 @@ public class ControladorEmpresa {
     private final List<Empleado> empleados;           
     private final ListaEspacios espacios;             
     private final ListaServicios servicios;           
-    private final Listacontratos contratos;           
+    private final Listacontratos contratos;
+    private static ControladorEmpresa instancia;
 
     public ControladorEmpresa() {
         this.clientes = new HashMap<>();
@@ -52,7 +53,12 @@ public class ControladorEmpresa {
         this.servicios = new ListaServicios();
         this.contratos = new Listacontratos();
     }
-
+public static ControladorEmpresa getInstancia() {
+    if (instancia == null) {
+        instancia = new ControladorEmpresa();
+    }
+    return instancia;
+}
 
     public void agregarCliente(Cliente cliente) throws ID_duplicadosExc, datos_faltantesExc {
         if (cliente == null) {
