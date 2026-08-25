@@ -52,6 +52,8 @@ public class ControladorEmpresa {
         this.espacios = new ListaEspacios();
         this.servicios = new ListaServicios();
         this.contratos = new Listacontratos();
+        
+        cargarDatosDePrueba();
     }
 public static ControladorEmpresa getInstancia() {
     if (instancia == null) {
@@ -472,4 +474,36 @@ public static ControladorEmpresa getInstancia() {
         }
         throw new StoreBoxException("No existe un contrato con número " + numeroContrato + ".");
     }
+    private void cargarDatosDePrueba() {
+    try {
+        agregarCliente(new Cliente("101110111", "Juan Pérez Rodríguez",
+                LocalDate.of(1990, 5, 12), "8888-1111", "juan.perez@mail.com"));
+        agregarCliente(new Cliente("202220222", "María Solano Vargas",
+                LocalDate.of(1985, 11, 3), "8888-2222", "maria.solano@mail.com"));
+        agregarCliente(new Cliente("303330333", "Carlos Jiménez Mora",
+                LocalDate.of(1998, 2, 27), "8888-3333", "carlos.jimenez@mail.com"));
+
+        agregarEmpleado(new Empleado("400440044", "Ana Castro", "8888-4444", Puesto.ADMINISTRADOR));
+        agregarEmpleado(new Empleado("500550055", "Luis Vega", "8888-5555", Puesto.RECEPCIONISTA));
+        agregarEmpleado(new Empleado("600660066", "Diego Rojas", "8888-6666", Puesto.ENCARGADO_BODEGA));
+
+        agregarEspacio(new Espacio(1, TipoEspacio.PEQUENO));
+        agregarEspacio(new Espacio(2, TipoEspacio.PEQUENO));
+        agregarEspacio(new Espacio(3, TipoEspacio.MEDIANO));
+        agregarEspacio(new Espacio(4, TipoEspacio.MEDIANO));
+        agregarEspacio(new Espacio(5, TipoEspacio.GRANDE));
+
+        agregarServicio("Seguro básico", "Cobertura contra robo e incendio", 5_000);
+        agregarServicio("Limpieza mensual", "Limpieza del espacio una vez al mes", 3_500);
+        agregarServicio("Acceso 24/7", "Acceso al espacio en cualquier horario", 8_000);
+
+        crearContrato("101110111", TipoEspacio.PEQUENO,
+                LocalDate.of(2026, 1, 10), LocalDate.of(2026, 7, 10));
+        crearContrato("202220222", TipoEspacio.MEDIANO,
+                LocalDate.of(2026, 3, 1), LocalDate.of(2026, 9, 1));
+
+    } catch (Exception ex) {
+        System.err.println("Error cargando datos de prueba: " + ex.getMessage());
+    }
+}
 }
