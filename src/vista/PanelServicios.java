@@ -5,19 +5,26 @@
 package vista;
 
 import Empresa.ControladorEmpresa;
+import excepciones.StoreBoxException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import servicios.Servicio;
 
 /**
  *
- * @author UTN
+ * @author Adriel
  */
 public class PanelServicios extends javax.swing.JPanel {
-    private ControladorEmpresa Controlador;
+private final ControladorEmpresa controlador;
+    private int codigoSeleccionado = -1;
     /**
      * Creates new form PanelServicios
      */
-    public PanelServicios() {
-        this.Controlador = ControladorEmpresa.getInstancia();
+    public PanelServicios(ControladorEmpresa controlador) {
+       this.controlador = controlador;
         initComponents();
+        refrescarTabla(controlador.listarServicios());
+        tablaServicios.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
     }
 
     /**
@@ -271,29 +278,126 @@ public class PanelServicios extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        // TODO add your handling code here:
+        try {
+            String nombre = txtNombre.getText().trim();
+            String descripcion = txtDescripcion.getText().trim();
+            double precio = Double.parseDouble(txtPrecio.getText().trim());
+
+            Servicio servicio = controlador.agregarServicio(nombre, descripcion, precio);
+
+            JOptionPane.showMessageDialog(this,
+                    "Servicio agregado correctamente con código autogenerado #" + servicio.getCodigo() + ".");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarServicios());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El precio debe ser numérico.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        // TODO add your handling code here:
+      try {
+            if (codigoSeleccionado < 0) {
+                JOptionPane.showMessageDialog(this, "Seleccione un servicio de la tabla.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Double precio = txtPrecio.getText().trim().isBlank()
+                    ? null : Double.parseDouble(txtPrecio.getText().trim());
+
+            controlador.actualizarServicio(codigoSeleccionado, txtDescripcion.getText().trim(), precio);
+
+            JOptionPane.showMessageDialog(this, "Servicio actualizado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarServicios());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "El precio debe ser numérico.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException | StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        try {
+            if (codigoSeleccionado < 0) {
+                JOptionPane.showMessageDialog(this, "Seleccione un servicio de la tabla.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            int confirmacion = JOptionPane.showConfirmDialog(this,
+                    "¿Seguro que desea eliminar el servicio #" + codigoSeleccionado + "?",
+                    "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (confirmacion != JOptionPane.YES_OPTION) {
+                return;
+            }
+            controlador.eliminarServicio(codigoSeleccionado);
+            JOptionPane.showMessageDialog(this, "Servicio eliminado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarServicios());
+        } catch (StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        // TODO add your handling code here:
+        limpiarFormulario();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+        Integer codigo = null;
+        if (!txtBuscarCodigo.getText().trim().isBlank()) {
+            try {
+                codigo = Integer.parseInt(txtBuscarCodigo.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El código debe ser numérico.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        String nombre = txtBuscarNombre.getText().trim();
+        List<Servicio> resultado = controlador.buscarServicio(codigo, nombre.isBlank() ? null : nombre);
+        refrescarTabla(resultado);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnMostrarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodosActionPerformed
-        // TODO add your handling code here:
+        refrescarTabla(controlador.listarServicios());
     }//GEN-LAST:event_btnMostrarTodosActionPerformed
+ private void cargarSeleccionEnFormulario() {
+        int fila = tablaServicios.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaServicios.getModel();
+        codigoSeleccionado = (int) modelo.getValueAt(fila, 0);
+        lblCodigo.setText(String.valueOf(codigoSeleccionado));
+        txtNombre.setText(String.valueOf(modelo.getValueAt(fila, 1)));
+        txtDescripcion.setText(String.valueOf(modelo.getValueAt(fila, 2)));
+        txtPrecio.setText(String.valueOf(modelo.getValueAt(fila, 3)));
+        txtNombre.setEditable(false);
+    }
 
+    private void limpiarFormulario() {
+        codigoSeleccionado = -1;
+        lblCodigo.setText("(se asigna automáticamente)");
+        txtNombre.setText("");
+        txtDescripcion.setText("");
+        txtPrecio.setText("");
+        txtNombre.setEditable(true);
+        tablaServicios.clearSelection();
+    }
+
+    private void refrescarTabla(List<Servicio> servicios) {
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaServicios.getModel();
+        modelo.setRowCount(0);
+        for (Servicio s : servicios) {
+            modelo.addRow(new Object[]{
+                s.getCodigo(), s.getNombre(), s.getDescripcion(), s.getPrecio()
+            });
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;
