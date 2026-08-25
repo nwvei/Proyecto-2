@@ -4,19 +4,33 @@
  */
 package vista;
 
+import Empresa.ControladorEmpresa;
+import espacios.Espacio;
 import espacios.TipoEspacio;
+import excepciones.EspacioDuplicadoException;
+import excepciones.StoreBoxException;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author UTN
  */
 public class PanelEspacios extends javax.swing.JPanel {
-
+    private ControladorEmpresa controlador;
     /**
      * Creates new form PanelEspacios
      */
-    public PanelEspacios() {
+    public PanelEspacios(ControladorEmpresa controlador) {
         initComponents();
+        this.controlador = controlador;
+        comboBuscarTipo.addItem(null);
+        for(TipoEspacio t: TipoEspacio.values()){
+            comboBuscarTipo.addItem(t);
+        }
+        refrescarTabla(controlador.listarEspacios());
+        tablaEspacios.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
     }
 
     /**
@@ -281,29 +295,137 @@ public class PanelEspacios extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        // TODO add your handling code here:
+        try {
+        int numero = Integer.parseInt(txtNumero.getText().trim());
+        TipoEspacio tipo = (TipoEspacio) comboTipo.getSelectedItem();
+        Espacio espacio = new Espacio(numero, tipo);
+        if(!txtPrecio.getText().trim().isBlank()){
+            espacio.setPrecio(Double.parseDouble(txtPrecio.getText().trim()));
+        }
+            try {
+                controlador.agregarEspacio(espacio);
+            } catch (EspacioDuplicadoException ex) {
+                System.getLogger(PanelEspacios.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        JOptionPane.showMessageDialog(this,"Espacio agregado correctamente");
+        limpiarFormulario();
+        refrescarTabla(controlador.listarEspacios());
+        }catch(NumberFormatException e){
+            JOptionPane.showMessageDialog(this,"El número de espacio y numero de precio debe de ser numérico","Error", JOptionPane.ERROR_MESSAGE);
+        }catch (IllegalArgumentException e){
+            JOptionPane.showMessageDialog(this,e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        // TODO add your handling code here:
+        try{
+        if(txtNumero.getText().trim().isBlank()){
+            JOptionPane.showMessageDialog(this,"Selecione un espacio o esciba su número","Error",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int numero = Integer.parseInt(txtNumero.getText().trim());
+        TipoEspacio tipo = (TipoEspacio) comboTipo.getSelectedItem();
+        Double precio = txtPrecio.getText().trim().isBlank() ? null : Double.parseDouble(txtPrecio.getText().trim());
+        try {
+            controlador.actualizarEspacio(numero, tipo, precio);
+        } catch (StoreBoxException ex) {
+            System.getLogger(PanelEspacios.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        JOptionPane.showMessageDialog(this,"Espacio actualizado correctamente");
+        limpiarFormulario();
+        refrescarTabla(controlador.listarEspacios());
+        }catch(NumberFormatException e){
+            JOptionPane.showMessageDialog(this,"El número de espacio y numero de precio debe de ser numérico","Error", JOptionPane.ERROR_MESSAGE);
+        }catch (IllegalArgumentException e){
+            JOptionPane.showMessageDialog(this,e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
+        }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        try{
+        if(txtNumero.getText().trim().isBlank()){
+            JOptionPane.showMessageDialog(this,"Selecione un espacio de la tabla o escriba su numero","Error",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int numero = Integer.parseInt(txtNumero.getText().trim());
+        int confirmacion = JOptionPane.showConfirmDialog
+        (this, "Seguro que desea eliminar el" + numero + "?","Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirmacion == JOptionPane.YES_OPTION){
+            return;
+        }
+            try {
+                controlador.eliminarEspacio(numero);
+            } catch (StoreBoxException ex) {
+                System.getLogger(PanelEspacios.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        JOptionPane.showMessageDialog(this, "Espacio eliminado correctamente.");
+        limpiarFormulario();
+        refrescarTabla(controlador.listarEspacios());
+        }catch(NumberFormatException e){
+            JOptionPane.showMessageDialog(this,"El número de espacio y numero de precio debe de ser numérico","Error", JOptionPane.ERROR_MESSAGE);
+        }catch (IllegalArgumentException e){
+            JOptionPane.showMessageDialog(this,e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); 
+        }     
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        // TODO add your handling code here:
+        limpiarFormulario();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+        Integer numero = null;
+        if(!txtBuscarNumero.getText().trim().isBlank()){
+            try {
+                numero = Integer.valueOf(txtBuscarNumero.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El número debe ser numérico.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        TipoEspacio espacio = (TipoEspacio) comboBuscarTipo.getSelectedItem();
+        Boolean disponible = switch ((String) comboBuscarDisponible.getSelectedItem()) {
+            case "Disponibles" -> Boolean.TRUE;
+            case "Ocupados" -> Boolean.FALSE;
+            default -> null;
+        };
+        List<Espacio> resultado = controlador.buscarEspacio(numero, espacio, disponible, Double.NaN, Double.MIN_NORMAL);
+        refrescarTabla(resultado);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnMostrarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodosActionPerformed
-        // TODO add your handling code here:
+        refrescarTabla(controlador.listarEspacios());
     }//GEN-LAST:event_btnMostrarTodosActionPerformed
-
+    
+    private void refrescarTabla(List<Espacio> espacio){
+        DefaultTableModel modelo = (DefaultTableModel) tablaEspacios.getModel();
+        modelo.setRowCount(0);
+        for(Espacio e: espacio){
+            modelo.addRow (new Object[]{
+                e.getNumero(),e.getTipo(), e.getTamano(),e.getPrecio(),e.getEstado()});
+            }
+        }
+    private void cargarSeleccionEnFormulario(){
+        int fila = tablaEspacios.getSelectedRow();
+        if (fila < 0){
+            return;
+        }
+        DefaultTableModel modelo = (DefaultTableModel) tablaEspacios.getModel();
+        txtNumero.setText(String.valueOf(modelo.getValueAt(fila, 0)));
+        comboTipo.setSelectedItem(TipoEspacio.valueOf(String.valueOf(modelo.getValueAt(fila, 1))));
+        txtPrecio.setText(String.valueOf(modelo.getValueAt(fila,3)));
+        lblEstado.setText(String.valueOf(modelo.getValueAt(fila,4)));
+        txtNumero.setEditable(false);
+        
+    }
+    private void limpiarFormulario(){
+        txtNumero.setText("");
+        comboTipo.setSelectedIndex(0);
+        txtPrecio.setText("");
+        lblEstado.setText("Disponible");
+        txtNumero.setEditable(true);
+        tablaEspacios.clearSelection();
+        
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;
@@ -335,3 +457,4 @@ public class PanelEspacios extends javax.swing.JPanel {
     private javax.swing.JTextField txtPrecio;
     // End of variables declaration//GEN-END:variables
 }
+
