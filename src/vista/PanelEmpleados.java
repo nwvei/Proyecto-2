@@ -25,10 +25,13 @@ private final ControladorEmpresa controlador;
         initComponents();
         comboBuscarPuesto.addItem(null);
         for (Puesto p : Puesto.values()) {
+    comboPuesto.addItem(p);
+}
+        for (Puesto p : Puesto.values()) {
             comboBuscarPuesto.addItem(p);
         }
         refrescarTabla(controlador.listarEmpleados());
-        tablaEmpleados.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
+        tablaEmpleados.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());  
     }
 
     /**
