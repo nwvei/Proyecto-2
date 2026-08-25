@@ -22,10 +22,13 @@ public class PanelEspacios extends javax.swing.JPanel {
     /**
      * Creates new form PanelEspacios
      */
-    public PanelEspacios(ControladorEmpresa controlador) {
+    public PanelEspacios() {
         initComponents();
-        this.controlador = controlador;
+        this.controlador = ControladorEmpresa.getInstancia();
         comboBuscarTipo.addItem(null);
+        for(TipoEspacio t: TipoEspacio.values()){
+            comboTipo.addItem(t);
+        }
         for(TipoEspacio t: TipoEspacio.values()){
             comboBuscarTipo.addItem(t);
         }
