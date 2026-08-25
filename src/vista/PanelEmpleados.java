@@ -20,8 +20,8 @@ private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelEmpleados
      */
-    public PanelEmpleados(ControladorEmpresa controlador) {
-       this.controlador = controlador;
+    public PanelEmpleados() {
+       this.controlador = ControladorEmpresa.getInstancia();
         initComponents();
         comboBuscarPuesto.addItem(null);
         for (Puesto p : Puesto.values()) {
