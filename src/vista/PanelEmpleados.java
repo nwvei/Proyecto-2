@@ -4,19 +4,31 @@
  */
 package vista;
 
+import Empresa.ControladorEmpresa;
+import empleados.Empleado;
 import empleados.Puesto;
+import excepciones.StoreBoxException;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Adriel
  */
 public class PanelEmpleados extends javax.swing.JPanel {
-
+private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelEmpleados
      */
-    public PanelEmpleados() {
+    public PanelEmpleados(ControladorEmpresa controlador) {
+       this.controlador = controlador;
         initComponents();
+        comboBuscarPuesto.addItem(null);
+        for (Puesto p : Puesto.values()) {
+            comboBuscarPuesto.addItem(p);
+        }
+        refrescarTabla(controlador.listarEmpleados());
+        tablaEmpleados.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
     }
 
     /**
@@ -280,29 +292,113 @@ public class PanelEmpleados extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        // TODO add your handling code here:
+         try {
+            String id = txtId.getText().trim();
+            String nombre = txtNombre.getText().trim();
+            String telefono = txtTelefono.getText().trim();
+            Puesto puesto = (Puesto) comboPuesto.getSelectedItem();
+
+            Empleado empleado = new Empleado(id, nombre, telefono, puesto);
+            controlador.agregarEmpleado(empleado);
+
+            JOptionPane.showMessageDialog(this, "Empleado agregado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarEmpleados());
+        } catch (IllegalArgumentException | StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        // TODO add your handling code here:
+        try {
+            String id = txtId.getText().trim();
+            if (id.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla o escriba su ID.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Puesto puesto = (Puesto) comboPuesto.getSelectedItem();
+            controlador.actualizarEmpleado(id, txtNombre.getText().trim(), txtTelefono.getText().trim(), puesto);
+
+            JOptionPane.showMessageDialog(this,
+                    "Empleado actualizado correctamente. El salario se recalculó según el puesto.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarEmpleados());
+        } catch (IllegalArgumentException | StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        try {
+            String id = txtId.getText().trim();
+            if (id.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un empleado de la tabla o escriba su ID.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            int confirmacion = JOptionPane.showConfirmDialog(this,
+                    "¿Seguro que desea eliminar al empleado " + id + "?",
+                    "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (confirmacion != JOptionPane.YES_OPTION) {
+                return;
+            }
+            controlador.eliminarEmpleado(id);
+            JOptionPane.showMessageDialog(this, "Empleado eliminado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarEmpleados());
+        } catch (StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        // TODO add your handling code here:
+       limpiarFormulario();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+        String id = txtBuscarId.getText().trim();
+        String nombre = txtBuscarNombre.getText().trim();
+        Puesto puesto = (Puesto) comboBuscarPuesto.getSelectedItem();
+        List<Empleado> resultado = controlador.buscarEmpleado(
+                id.isBlank() ? null : id, nombre.isBlank() ? null : nombre, puesto);
+        refrescarTabla(resultado);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnMostrarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodosActionPerformed
-        // TODO add your handling code here:
+        refrescarTabla(controlador.listarEmpleados());
     }//GEN-LAST:event_btnMostrarTodosActionPerformed
+ private void cargarSeleccionEnFormulario() {
+        int fila = tablaEmpleados.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaEmpleados.getModel();
+        txtId.setText(String.valueOf(modelo.getValueAt(fila, 0)));
+        txtNombre.setText(String.valueOf(modelo.getValueAt(fila, 1)));
+        txtTelefono.setText(String.valueOf(modelo.getValueAt(fila, 2)));
+        comboPuesto.setSelectedItem(Puesto.valueOf(String.valueOf(modelo.getValueAt(fila, 3))));
+        txtId.setEditable(false);
+    }
 
+    private void limpiarFormulario() {
+        txtId.setText("");
+        txtNombre.setText("");
+        txtTelefono.setText("");
+        comboPuesto.setSelectedIndex(0);
+        txtId.setEditable(true);
+        tablaEmpleados.clearSelection();
+    }
+
+    private void refrescarTabla(List<Empleado> empleados) {
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaEmpleados.getModel();
+        modelo.setRowCount(0);
+        for (Empleado e : empleados) {
+            modelo.addRow(new Object[]{
+                e.getID(), e.getnombre(), e.getTelefono(), e.getPuesto(), e.getSalario()
+            });
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;
@@ -333,4 +429,5 @@ public class PanelEmpleados extends javax.swing.JPanel {
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtTelefono;
     // End of variables declaration//GEN-END:variables
+
 }
