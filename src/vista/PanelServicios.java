@@ -20,8 +20,8 @@ private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelServicios
      */
-    public PanelServicios(ControladorEmpresa controlador) {
-       this.controlador = controlador;
+    public PanelServicios() {
+        this.controlador = ControladorEmpresa.getInstancia();
         initComponents();
         refrescarTabla(controlador.listarServicios());
         tablaServicios.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
