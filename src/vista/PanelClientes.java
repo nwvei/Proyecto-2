@@ -22,11 +22,12 @@ private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelClientes
      */
-    public PanelClientes(ControladorEmpresa controlador) {
-     this.controlador = controlador;
+    public PanelClientes() {
+     this.controlador = ControladorEmpresa.getInstancia();
         initComponents();
         refrescarTabla(controlador.listarClientes());
         tablaClientes.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
+        
     }
 
     /**
