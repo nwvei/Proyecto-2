@@ -4,17 +4,30 @@
  */
 package vista;
 
+import Empresa.ControladorEmpresa;
+import clientes.Cliente;
+import excepciones.StoreBoxException;
+import excepciones.UtilDate;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Adriel
  */
 public class PanelClientes extends javax.swing.JPanel {
-
+private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelClientes
      */
     public PanelClientes() {
+     this.controlador = ControladorEmpresa.getInstancia();
         initComponents();
+        refrescarTabla(controlador.listarClientes());
+        tablaClientes.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
+        
     }
 
     /**
@@ -112,9 +125,9 @@ public class PanelClientes extends javax.swing.JPanel {
                     .addComponent(lblNombre)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblFechaNac)
-                    .addComponent(txtFechaNac, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtFechaNac, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblFechaNac))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblTelefono)
@@ -289,29 +302,117 @@ public class PanelClientes extends javax.swing.JPanel {
     }//GEN-LAST:event_txtCorreoActionPerformed
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        // TODO add your handling code here:
+        try {
+            String id = txtId.getText().trim();
+            String nombre = txtNombre.getText().trim();
+            LocalDate fechaNac = UtilDate.toLocalDate(txtFechaNac.getText().trim());
+            String telefono = txtTelefono.getText().trim();
+            String correo = txtCorreo.getText().trim();
+
+            Cliente cliente = new Cliente(id, nombre, fechaNac, telefono, correo);
+            controlador.agregarCliente(cliente);
+
+            JOptionPane.showMessageDialog(this, "Cliente agregado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarClientes());
+        } catch (DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(this, "La fecha debe tener el formato dd/MM/yyyy.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException | StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
-        // TODO add your handling code here:
+       try {
+            String id = txtId.getText().trim();
+            if (id.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un cliente de la tabla o escriba su ID.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            controlador.actualizarCliente(id, txtNombre.getText().trim(),
+                    txtTelefono.getText().trim(), txtCorreo.getText().trim());
+
+            JOptionPane.showMessageDialog(this, "Cliente actualizado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarClientes());
+        } catch (IllegalArgumentException | StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        try {
+            String id = txtId.getText().trim();
+            if (id.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Seleccione un cliente de la tabla o escriba su ID.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            int confirmacion = JOptionPane.showConfirmDialog(this,
+                    "¿Seguro que desea eliminar al cliente " + id + "?",
+                    "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (confirmacion != JOptionPane.YES_OPTION) {
+                return;
+            }
+            controlador.eliminarCliente(id);
+            JOptionPane.showMessageDialog(this, "Cliente eliminado correctamente.");
+            limpiarFormulario();
+            refrescarTabla(controlador.listarClientes());
+        } catch (StoreBoxException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-        // TODO add your handling code here:
+         limpiarFormulario();
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+       String id = txtBuscarId.getText().trim();
+        String nombre = txtBuscarNombre.getText().trim();
+        List<Cliente> resultado = controlador.buscarCliente(
+                id.isBlank() ? null : id, nombre.isBlank() ? null : nombre);
+        refrescarTabla(resultado);
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnMostrarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodosActionPerformed
-        // TODO add your handling code here:
+         refrescarTabla(controlador.listarClientes());
     }//GEN-LAST:event_btnMostrarTodosActionPerformed
+ private void cargarSeleccionEnFormulario() {
+        int fila = tablaClientes.getSelectedRow();
+        if (fila < 0) {
+            return;
+        }
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaClientes.getModel();
+        txtId.setText(String.valueOf(modelo.getValueAt(fila, 0)));
+        txtNombre.setText(String.valueOf(modelo.getValueAt(fila, 1)));
+        txtTelefono.setText(String.valueOf(modelo.getValueAt(fila, 3)));
+        txtCorreo.setText(String.valueOf(modelo.getValueAt(fila, 4)));
+        txtFechaNac.setText("");
+        txtId.setEditable(false);
+    }
 
+    private void limpiarFormulario() {
+        txtId.setText("");
+        txtNombre.setText("");
+        txtFechaNac.setText("");
+        txtTelefono.setText("");
+        txtCorreo.setText("");
+        txtId.setEditable(true);
+        tablaClientes.clearSelection();
+    }
+
+    private void refrescarTabla(List<Cliente> clientes) {
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaClientes.getModel();
+        modelo.setRowCount(0);
+        for (Cliente c : clientes) {
+            modelo.addRow(new Object[]{
+                c.getID(), c.getNombreCompleto(), c.calcularEdad(), c.getTelefono(), c.getCorreo()
+            });
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;

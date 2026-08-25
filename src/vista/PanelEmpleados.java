@@ -20,15 +20,18 @@ private final ControladorEmpresa controlador;
     /**
      * Creates new form PanelEmpleados
      */
-    public PanelEmpleados(ControladorEmpresa controlador) {
-       this.controlador = controlador;
+    public PanelEmpleados() {
+       this.controlador = ControladorEmpresa.getInstancia();
         initComponents();
         comboBuscarPuesto.addItem(null);
+        for (Puesto p : Puesto.values()) {
+    comboPuesto.addItem(p);
+}
         for (Puesto p : Puesto.values()) {
             comboBuscarPuesto.addItem(p);
         }
         refrescarTabla(controlador.listarEmpleados());
-        tablaEmpleados.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());
+        tablaEmpleados.getSelectionModel().addListSelectionListener(evt -> cargarSeleccionEnFormulario());  
     }
 
     /**
