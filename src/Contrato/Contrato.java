@@ -1,12 +1,14 @@
 package Contrato;
 
 import Contrato.EstadoContrato;
-import Exceptions.FechaFinAnteriorException;
-import Exceptions.UtilDate;
+import excepciones.FechaFinAnteriorException;
+import excepciones.UtilDate;
 import clientes.Cliente;
+import espacios.Espacio;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import servicios.Servicio;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -113,7 +115,14 @@ public class Contrato {
         this.subtotal = total / (1 + IVA);
         this.impuesto = total - subtotal;
 }
-    
+
+    public void agregarServicio(Servicio servicio) {
+        if (servicio != null) {
+            serviciosAdicionales.add(servicio);
+            calcularCosto();
+        }
+    }
+
     public int getCantidadDias() {
     return UtilDate.calcularDias(fechaInicio, fechaFin);
 }
