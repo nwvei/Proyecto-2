@@ -4,16 +4,19 @@
  */
 package vista;
 
+import Empresa.ControladorEmpresa;
+
 /**
  *
  * @author UTN
  */
 public class PanelServicios extends javax.swing.JPanel {
-
+    private ControladorEmpresa Controlador;
     /**
      * Creates new form PanelServicios
      */
     public PanelServicios() {
+        this.Controlador = ControladorEmpresa.getInstancia();
         initComponents();
     }
 
