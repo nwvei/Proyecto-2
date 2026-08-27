@@ -283,6 +283,7 @@ public class PanelContratos extends javax.swing.JPanel {
                 tablaContratosMouseClicked(evt);
             }
         });
+        scrollTabla.setViewportView(tablaContratos);
 
         javax.swing.GroupLayout paneTablaLayout = new javax.swing.GroupLayout(paneTabla);
         paneTabla.setLayout(paneTablaLayout);
@@ -290,13 +291,8 @@ public class PanelContratos extends javax.swing.JPanel {
             paneTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(paneTablaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollTabla, javax.swing.GroupLayout.DEFAULT_SIZE, 778, Short.MAX_VALUE)
+                .addComponent(scrollTabla, javax.swing.GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
                 .addContainerGap())
-            .addGroup(paneTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneTablaLayout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(tablaContratos, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
         );
         paneTablaLayout.setVerticalGroup(
             paneTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -304,11 +300,6 @@ public class PanelContratos extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(scrollTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(14, Short.MAX_VALUE))
-            .addGroup(paneTablaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneTablaLayout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(tablaContratos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         panelBusqueda.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102), 2));
@@ -480,15 +471,6 @@ public class PanelContratos extends javax.swing.JPanel {
         refrescarTabla(controlador.listarContratos());
     }//GEN-LAST:event_btnMostrarTodosActionPerformed
 
-    private void tablaContratosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaContratosMouseClicked
-        int fila = tablaContratos.getSelectedRow();
-if (fila >= 0) {
-   DefaultTableModel modelo =
-            (DefaultTableModel) tablaContratos.getModel();
-    numeroseleccionado = (int) modelo.getValueAt(fila, 0);
-}
-    }//GEN-LAST:event_tablaContratosMouseClicked
-
     private void btnActivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActivarActionPerformed
         cambiarEstado("activar");
     }//GEN-LAST:event_btnActivarActionPerformed
@@ -496,6 +478,15 @@ if (fila >= 0) {
     private void comboTipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboTipoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_comboTipoActionPerformed
+
+    private void tablaContratosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaContratosMouseClicked
+        int fila = tablaContratos.getSelectedRow();
+    if (fila >= 0) {
+        DefaultTableModel modelo =
+                (DefaultTableModel) tablaContratos.getModel();
+        numeroseleccionado = (int) modelo.getValueAt(fila, 0);
+    }
+    }//GEN-LAST:event_tablaContratosMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
